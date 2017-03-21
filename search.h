@@ -1,6 +1,12 @@
 // Sam Mustipher, Noah Sarkey
 // CSE 30341 - 02
 // Project 4
+// search.h
+
+////////////////////////////////// TO DO ///////////////////////////////////////
+// Take care of carraige returns
+// no wildcards or regular expressions? what does this entail
+////////////////////////////////////////////////////////////////////////////////
 
 #include <iostream>
 #include <stdio.h>
@@ -39,7 +45,7 @@ class Search {
 				}
 			}
 	
-			//for (int i = 0; i < phrase.size(); i ++) {
+			//for (unsigned int i = 0; i < phrase.size(); i ++) {
 			//	cout << phrase[i] << endl;
 			//}
 

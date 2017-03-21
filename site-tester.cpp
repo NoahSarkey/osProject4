@@ -1,6 +1,12 @@
 // Sam Mustipher, Noah Sarkey
-// Project 04
 // CSE 30341 - 02
+// Project 4
+// site-tester.cpp
+
+////////////////////////////////// TO DO ///////////////////////////////////////
+
+
+////////////////////////////////////////////////////////////////////////////////
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,6 +29,8 @@ int main (int argc, char * argv[])
 		configfile = argv[1];
 		cout << "Config File: " << configfile << endl;
 	}
+
+	// Implementing config
 	Config mainconfig((configfile));
 	Search mainsearch;
 	mainconfig.output();
