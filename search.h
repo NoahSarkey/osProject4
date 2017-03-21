@@ -4,41 +4,46 @@
 
 #include <iostream>
 #include <stdio.h>
+#include <stdlib.h>
 #include <iomanip>
 #include <vector>
 #include <string>
 #include <fstream>
 using namespace std;
 
-void create()
-{
-	ifstream inputFile;
-	inputFile.open("Search.txt");
-	vector<string> phrase;
+class Search {
+	public: 
+		vector<string> create(string filename)
+		{
+			ifstream inputFile;
+			inputFile.open(filename);
+			vector<string> phrase;
 	
-	if (inputFile.is_open()) {
-		while (!inputFile.eof()) {
-			int kill = 0;
-			string w = "";
-			// read in the line
-			getline(inputFile, w);
+			if (inputFile.is_open()) {
+				while (!inputFile.eof()) {
+					int kill = 0;
+					string w = "";
+					// read in the line
+					getline(inputFile, w);
 
-			//do all of the work to clean the file
-			for (int i = 0; i < w.size(); i ++) {
-				if (w[i] == ',') {
-					kill = 1;
+					//do all of the work to clean the file
+					for (int i = 0; i < w.length(); i ++) {
+						if (w[i] == ',') {
+							kill = 1;
+						}
+					}
+
+					// add to the vector
+					if (kill == 0) phrase.push_back(w);
+
 				}
 			}
-
-			// add to the vector
-			if (kill == 0) phrase.push_back(w);
-
-		}
-	}
 	
-	for (int i = 0; i < phrase.size(); i ++) {
-		cout << phrase[i] << endl;
-	}
+			//for (int i = 0; i < phrase.size(); i ++) {
+			//	cout << phrase[i] << endl;
+			//}
 
-	inputFile.close();
-}	//end of create function
+			inputFile.close();
+			return phrase;
+		}	//end of create function
+};	//end of class
