@@ -25,7 +25,6 @@ class Config{
 			ss["SITE_FILE"] = SITE_FILE;
 
 			string line;
-
 			ifstream inFile;
 			inFile.open(configtext);
 
@@ -56,6 +55,7 @@ class Config{
 				}
 				else{ cout << "What the fuck is that?" << endl; }
 			}
+			inFile.close();
 		}
 
 		void output(){
