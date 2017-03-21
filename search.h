@@ -16,7 +16,7 @@ class Search {
 		vector<string> create(string filename)
 		{
 			ifstream inputFile;
-			inputFile.open(filename);
+			inputFile.open(filename.c_str());
 			vector<string> phrase;
 	
 			if (inputFile.is_open()) {
@@ -27,7 +27,7 @@ class Search {
 					getline(inputFile, w);
 
 					//do all of the work to clean the file
-					for (int i = 0; i < w.length(); i ++) {
+					for (unsigned int i = 0; i < w.size(); i ++) {
 						if (w[i] == ',') {
 							kill = 1;
 						}
