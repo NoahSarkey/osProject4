@@ -2,6 +2,7 @@
 // Authors: Sam Mustipher, Noah Sarkey
 #include <stdio.h>
 #include <iostream>
+#include <cstdlib>
 #include <string>
 #include <sstream>
 #include <fstream>

@@ -3,6 +3,7 @@
 // CSE 30341 - 02
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <iostream>
 #include <string>
 #include <fstream>
