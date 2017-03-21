@@ -26,7 +26,7 @@ class Config{
 
 			string line;
 			ifstream inFile;
-			inFile.open(configtext.c_str());
+			inFile.open(configtext.c_str()s);
 
 			while(getline(inFile, line)){
 				istringstream iss(line);
