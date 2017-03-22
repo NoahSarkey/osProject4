@@ -15,6 +15,7 @@
 #include <fstream>
 #include "config.h"
 #include "search.h"
+#include "fetch.h"
 using namespace std;
 
 int main (int argc, char * argv[])
@@ -38,6 +39,11 @@ int main (int argc, char * argv[])
 	// Implementing search
 	vector<string> searchTerms;
 	searchTerms = mainsearch.create(mainconfig.SEARCH_FILE);
+	
+	cout << "Before fetch" << endl;	
+	// Implementing Fetch
+	Fetch fetch1(mainconfig.SITE_FILE);	
+	cout << "After fetch" << endl;	
 
 	return 0;
 }	//end of main function

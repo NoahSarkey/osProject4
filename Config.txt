@@ -2,6 +2,6 @@ PERIOD_FETCH=200
 NUM_FETCH=1
 NUM_PARSE=1
 SEARCH_FILE=wtf.txt
-SITE_FILE=Sites.txt
+SITE_FILE=ExampleSites.txt
 noah is a baby back bitch
 sitenum = 1
