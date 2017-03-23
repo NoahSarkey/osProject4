@@ -62,16 +62,23 @@ int main (int argc, char * argv[])
 
 	cout << websites.size() << " " << searchTerms.size() << endl;
 
-	for (unsigned int i = 0; i < websites.size(); i ++) {
-		for (unsigned int j = 0; j < searchTerms.size(); j ++) {
+	for (unsigned int i = 0; i < websites.size() - 1; i ++) {
+		for (unsigned int j = 0; j < searchTerms.size() - 1; j ++) {
 			int counter = 0;
 			string word = "";
 			fetch1.sites(websites[i]);
 			
 			int position = 0;
-			while (fetch1.html.find(searchTerms[i], position) != string::npos) {
-				position = position + searchTerms[i].size();
+
+			// there has to be some way here that we check whether or not this is legit
+
+			while (fetch1.html.find(searchTerms[j], position) != string::npos) {
+				position = fetch1.html.find(searchTerms[j], position) + searchTerms[j].size();
+				//position = position + searchTerms[j].size();				
 				counter ++;
+
+				//cout << "lll " << counter << " " << websites[i] << " " << searchTerms[j] << endl;
+
 			}	//end of while loop
 			
 			cout << websites[i] << " " << searchTerms[j] << " " << counter << endl;

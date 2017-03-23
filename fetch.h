@@ -81,7 +81,7 @@ class Fetch {
 
 		 	else {
 		 		html = string(chunk.memory);
-				cout << html << "\n";
+				//cout << html << "\n";
 		  	}
 		 
 		  	/* cleanup curl stuff */ 
