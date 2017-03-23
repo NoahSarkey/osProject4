@@ -38,7 +38,7 @@ int main (int argc, char * argv[])
 	
 	// Implementing search
 	vector<string> searchTerms;
-	searchTerms = mainsearch.create(mainconfig.SEARCH_FILE);
+	searchTerms = mainsearch.phrase;
 	
 	cout << "Before fetch" << endl;	
 	// Implementing Fetch
@@ -47,14 +47,26 @@ int main (int argc, char * argv[])
 	
 	fetch1 = Fetch();
 
+	// this all has to be linked from the config file
 	//for (int i = 0; i < mainconfig.SITE_FILE.size(); i ++) {
 	//	getline(mainconfig.SITE_FILE, line);
 	//}
 
 
+	//for (int i = 0; i < websites.size(); i ++) {
+	//	for (int j = 0; j < searchTerms.size(); i ++) {
+	//		fetch1.sites(websites[i]);
+	//		//for word in fetch1.html
+	//		// if word matches the search term then increment counter
+	//		// now print this shit out to the output file
+	//	}
+	//}
+
 	string website = "http://www.google.com";
 	fetch1.sites(website);
 	cout << fetch1.html << endl;
+
+	// actually perform the search
 
 	return 0;
 }	//end of main function

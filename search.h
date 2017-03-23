@@ -23,7 +23,7 @@ class Search {
 		{
 			ifstream inputFile;
 			inputFile.open(filename.c_str());
-			vector<string> phrase;
+			//vector<string> phrase;
 	
 			if (inputFile.is_open()) {
 				while (!inputFile.eof()) {
@@ -50,6 +50,8 @@ class Search {
 			//}
 
 			inputFile.close();
-			return phrase;
+			//return phrase;
 		}	//end of create function
+
+		vector<string> phrase;
 };	//end of class
