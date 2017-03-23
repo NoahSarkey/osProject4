@@ -38,35 +38,45 @@ int main (int argc, char * argv[])
 	
 	// Implementing search
 	vector<string> searchTerms;
+	mainsearch.create(mainconfig.SEARCH_FILE);
 	searchTerms = mainsearch.phrase;
 	
-	cout << "Before fetch" << endl;	
 	// Implementing Fetch
 	Fetch fetch1;	
-	cout << "After fetch" << endl;	
-	
 	fetch1 = Fetch();
 
-	// this all has to be linked from the config file
-	//for (int i = 0; i < mainconfig.SITE_FILE.size(); i ++) {
-	//	getline(mainconfig.SITE_FILE, line);
-	//}
+	// read the websites into a vector
+	vector<string> websites;
+	ifstream webFile;
+	webFile.open(mainconfig.SITE_FILE.c_str());
 
+	cout << mainconfig.SITE_FILE.c_str() << endl;
 
-	//for (int i = 0; i < websites.size(); i ++) {
-	//	for (int j = 0; j < searchTerms.size(); i ++) {
-	//		fetch1.sites(websites[i]);
-	//		//for word in fetch1.html
-	//		// if word matches the search term then increment counter
-	//		// now print this shit out to the output file
-	//	}
-	//}
+	if (webFile.is_open()) {
+		while (!webFile.eof()) {
+			string line = "";	
+			getline(webFile, line);
+			websites.push_back(line);		
+		}	//end while loop
+	}	//end if statement
 
-	string website = "http://www.google.com";
-	fetch1.sites(website);
-	cout << fetch1.html << endl;
+	cout << websites.size() << " " << searchTerms.size() << endl;
 
-	// actually perform the search
+	for (unsigned int i = 0; i < websites.size(); i ++) {
+		for (unsigned int j = 0; j < searchTerms.size(); j ++) {
+			int counter = 0;
+			string word = "";
+			fetch1.sites(websites[i]);
+			
+			int position = 0;
+			while (fetch1.html.find(searchTerms[i], position) != string::npos) {
+				position = position + searchTerms[i].size();
+				counter ++;
+			}	//end of while loop
+			
+			cout << websites[i] << " " << searchTerms[j] << " " << counter << endl;
+		}	//end of for loop
+	}	//end of for loop
 
 	return 0;
 }	//end of main function

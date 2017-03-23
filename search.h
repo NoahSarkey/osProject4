@@ -19,7 +19,7 @@ using namespace std;
 
 class Search {
 	public: 
-		vector<string> create(string filename)
+		void create(string filename)
 		{
 			ifstream inputFile;
 			inputFile.open(filename.c_str());
