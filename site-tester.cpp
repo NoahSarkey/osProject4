@@ -42,9 +42,19 @@ int main (int argc, char * argv[])
 	
 	cout << "Before fetch" << endl;	
 	// Implementing Fetch
-	Fetch fetch1(mainconfig.SITE_FILE);	
+	Fetch fetch1;	
 	cout << "After fetch" << endl;	
+	
+	fetch1 = Fetch();
+
+	//for (int i = 0; i < mainconfig.SITE_FILE.size(); i ++) {
+	//	getline(mainconfig.SITE_FILE, line);
+	//}
+
+
+	string website = "http://www.google.com";
+	fetch1.sites(website);
+	cout << fetch1.html << endl;
 
 	return 0;
 }	//end of main function
-

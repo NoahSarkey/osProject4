@@ -4,8 +4,8 @@
 // output.h
 
 ////////////////////////////////// TO DO ///////////////////////////////////////
-
-
+// get libcurl functioning so that we can run all of the checking
+// connect to site-tester.cpp
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <iostream>
@@ -23,6 +23,10 @@ class Output {
 			ofstream outputFile;
 			outputFile.open("output.txt");
 
+			// write to the file the headers
+			outputFile << "Time,Phrase,Site,Count" << endl;
+
+			// actually write everything to the file (need libcurl functioning)
 
 			outputFile.close();
 		}	//end of the output function that will write the output file

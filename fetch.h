@@ -1,54 +1,87 @@
-// fetch.h
-// Authors: Sam Mustipher, Noah Sarkey
-
 #include <stdio.h>
-#include <iostream>
-#include <string>
-#include <cstdlib>
+#include <stdlib.h>
+#include <string.h>
 #include <curl/curl.h>
-#include <fstream>
-using namespace std;
-
-class Fetch{
+	
+class Fetch {
 	public:
-		Fetch(string sites){
-			string line;
-			ifstream inFile;
-			inFile.open(sites.c_str());
-			cout << "In fetch" << endl;
-			while(getline(inFile, line)){
-				// parsing the file line by line
-				istringstream iss(line);
-				string text;
-				if(!(iss >> text)) { break; } // error
-				string url;
-				string delimiter = "http://";
-				url = text.substr(text.find(delimiter)+delimiter.length());
-				cout << url << ":" << endl;
-
-				// start curl
-				CURL *curl;
-				CURLcode res;
-				cout << "Outside of curl" << endl;
-				curl = curl_easy_init();
-				if(curl){
-					curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-					curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
-					curl_easy_setopt(curl, CURLOPT_WRITEDATA, &html);
-					res = curl_easy_perform(curl);
-					curl_easy_cleanup(curl);
-
-					cout << html << endl;			
-				}
-			}
-			inFile.close();
+		Fetch() {
 		}
+	 
+		struct MemoryStruct {
+		  char *memory;
+		  size_t size;
+		};
+		 
+		static size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp)
+		{
+		  	size_t realsize = size * nmemb;
+		  	struct MemoryStruct *mem = (struct MemoryStruct *)userp;
+		 
+		  	mem->memory = (char *)realloc(mem->memory, mem->size + realsize + 1);
+		  	if(mem->memory == NULL) {
+		    		/* out of memory! */ 
+		    		printf("not enough memory (realloc returned NULL)\n");
+		    		return 0;
+		  	}
+		 
+		  	memcpy(&(mem->memory[mem->size]), contents, realsize);
+		  	mem->size += realsize;
+		  	mem->memory[mem->size] = 0;
+		 
+		  	return realsize;
+		}	//end of writeMemoryCallback function
+		 
+		void sites(string website)
+		{
+		  	CURL *curl_handle;
+		  	CURLcode res;
+		
+			cout << "in curl\n";
+		  	struct MemoryStruct chunk;
+		 
+		  	chunk.memory = (char *)malloc(1);  /* will be grown as needed by the realloc above */ 
+		  	chunk.size = 0;    /* no data at this point */ 
+		 
+		  	curl_global_init(CURL_GLOBAL_ALL);
+		 
+		  	/* init the curl session */ 
+		  	curl_handle = curl_easy_init();
+		 
+		  	/* specify URL to get */ 
+		  	curl_easy_setopt(curl_handle, CURLOPT_URL, website.c_str());
+		 
+		  	/* send all data to this function  */ 
+		  	curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
+		 
+		  	/* we pass our 'chunk' struct to the callback function */ 
+		  	curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void *)&chunk);
+		 
+		  	/* some servers don't like requests that are made without a user-agent field, so we provide one */ 
+		  	curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "libcurl-agent/1.0");
+		 
+		  	/* get it! */ 
+		  	res = curl_easy_perform(curl_handle);
+		 
+		  	/* check for errors */ 
+		  	if(res != CURLE_OK) {
+		    		fprintf(stderr, "curl_easy_perform() failed: %s\n",
+			    	curl_easy_strerror(res));
+		  	}
 
-		// shttp://stackoverflow.com/questions/9786150/save-curl-content-result-into-a-string-in-c
-		static size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp){
-			((string *) userp)->append((char *)contents, size*nmemb);
-			return size*nmemb; 
+		 	else {
+		 		html = string(chunk.memory);
+				cout << html << "\n";
+		  	}
+		 
+		  	/* cleanup curl stuff */ 
+		  	curl_easy_cleanup(curl_handle);
+		 
+		  	free(chunk.memory);
+		 
+		  	/* we're done with libcurl, so clean it up */ 
+		  	curl_global_cleanup();
 		}
-
+		
 		string html;
 };
