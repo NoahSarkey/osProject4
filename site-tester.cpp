@@ -7,6 +7,7 @@
 
 
 ////////////////////////////////////////////////////////////////////////////////
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
@@ -18,10 +19,16 @@
 #include "config.h"
 #include "search.h"
 #include "fetch.h"
+#include "threading.h"
 using namespace std;
 
 int TIMECOUNT = 0;
 int CSVCOUNT = 1;
+vector<string> WEBSITES;
+QueueClass parseQueue;
+QueueClass fetchQueue;
+
+////////////////////////////////////////////////////////////////////////////////
 
 string getTimeDate(){
 	time_t now = time(0);
@@ -30,7 +37,21 @@ string getTimeDate(){
 	return tc;
 }
 
-string output(string dt, string phrase, string site, int count){
+////////////////////////////////////////////////////////////////////////////////
+
+void alarmFunc() {
+	for (int i = 0; i < WEBSITES.size()-1; i ++) {
+		fetchQueue._queue.push(WEBSITES[i]);
+	}
+
+	int wc = pthread_create(&threads[i], NULL, (int) &fetchData);
+
+
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+string output(string dt, string phrase, string site, int count) {
 	string firstline = "";
 	if (TIMECOUNT == 0){
 		firstline = "Date and Time, Search Phrase, Site, Count\n";
@@ -44,8 +65,14 @@ string output(string dt, string phrase, string site, int count){
 	result = convert.str();
 
 	TIMECOUNT+=1;
-	return firstline + dt + ", " + phrase + ", " + site + ", " + result + "\n"; 
+	return firstline + dt + "," + phrase + "," + site + "," + result + "\n"; 
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+
+
+////////////////////////////////////////////////////////////////////////////////
 
 int main (int argc, char * argv[]){
 
@@ -87,7 +114,6 @@ int main (int argc, char * argv[]){
 	fetch1 = Fetch();
 
 	// read the websites into a vector
-	vector<string> websites;
 	ifstream webFile;
 	if(fopen(mainconfig.SITE_FILE.c_str(), "r")){
 		webFile.open(mainconfig.SITE_FILE.c_str());
@@ -101,7 +127,7 @@ int main (int argc, char * argv[]){
 		while (!webFile.eof()) {
 			string line = "";	
 			getline(webFile, line);
-			websites.push_back(line);		
+			WEBSITES.push_back(line);		
 		}	//end while loop
 	}	//end if statement
 
@@ -114,11 +140,11 @@ int main (int argc, char * argv[]){
 	string filename = result + ".csv";
 	outputFile.open(filename.c_str());
 
-	for (unsigned int i = 0; i < websites.size() - 1; i ++) {
+	for (unsigned int i = 0; i < WEBSITES.size() - 1; i ++) {
 		for (unsigned int j = 0; j < searchTerms.size() - 1; j ++) {
 			int counter = 0;
 			string word = "";
-			fetch1.sites(websites[i]);
+			fetch1.sites(WEBSITES[i]);
 			
 			int position = 0;
 
@@ -130,7 +156,7 @@ int main (int argc, char * argv[]){
 				counter ++;
 			}	//end of while loop
 			
-			outputFile << output(currtime, searchTerms[j], websites[i], counter);
+			outputFile << output(currtime, searchTerms[j], WEBSITES[i], counter);
 		}	//end of for loop
 	}	//end of for loop
 

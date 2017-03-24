@@ -13,9 +13,9 @@
 #include <string>
 
 //template <typename T>
-class Threading {
+class QueueClass {
 	public:
-    		Threading() {
+    		QueueClass() {
     			pthread_mutex_init(&queueMutex, NULL);
     			pthread_cond_init(&emptyCondVar, NULL);
     			//Stopped = false;
