@@ -24,9 +24,22 @@ using namespace std;
 
 int TIMECOUNT = 0;
 int CSVCOUNT = 1;
+int timer = 1;
 vector<string> WEBSITES;
-QueueClass parseQueue;
-QueueClass fetchQueue;
+
+struct fetchItm {
+	pthread_t id;
+	string site;
+};
+
+struct parseItm {
+	pthread_t id;
+	string site;
+	string data;
+};
+
+QueueClass<parseItm> parseQueue;
+QueueClass<fetchItm> fetchQueue;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -40,21 +53,24 @@ string getTimeDate(){
 ////////////////////////////////////////////////////////////////////////////////
 
 void alarmFunc() {
-	for (int i = 0; i < WEBSITES.size()-1; i ++) {
-		fetchQueue._queue.push(WEBSITES[i]);
+	for (unsigned int i = 0; i < WEBSITES.size()-1; i ++) {
+		fetchItm temp;
+		temp.site = WEBSITES[i];
+		fetchQueue.Enqueue(temp);
 	}
-
-	int wc = pthread_create(&threads[i], NULL, (int) &fetchData);
-
-
+	alarm(timer);
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+
 
 ////////////////////////////////////////////////////////////////////////////////
 
 string output(string dt, string phrase, string site, int count) {
 	string firstline = "";
 	if (TIMECOUNT == 0){
-		firstline = "Date and Time, Search Phrase, Site, Count\n";
+		firstline = "Time,Phrase,Site,Count\n";
 	}
 	// cout << dt << ", " << phrase << ", " << site << ", " << count << endl
 	
@@ -76,7 +92,9 @@ string output(string dt, string phrase, string site, int count) {
 
 int main (int argc, char * argv[]){
 
+	// declare variables
 	string configfile;
+
 	if (argc != 2) {
 		cout << "Error. Invalid number of arguments." << endl;
 		exit(1);
@@ -140,6 +158,19 @@ int main (int argc, char * argv[]){
 	string filename = result + ".csv";
 	outputFile.open(filename.c_str());
 
+//////////////////////// begin forming the threads /////////////////////////////
+	pthread_t threads[NUM_THREADS];
+	struct fetchItm td[NUM_THREADS];
+	int rc;
+	
+	for (int i = 0;i < NUM_FETCH; i ++) {
+		cout << "main() : creating thread, " << i << endl;
+		td[i].id = i;
+		td[i].site = WEBSITES[j];
+		rc = pthread_create(&threads[i], NULL, 
+	}
+
+	// make this into a curl function
 	for (unsigned int i = 0; i < WEBSITES.size() - 1; i ++) {
 		for (unsigned int j = 0; j < searchTerms.size() - 1; j ++) {
 			int counter = 0;

@@ -12,31 +12,31 @@
 #include <pthread.h>
 #include <string>
 
-//template <typename T>
+template <typename T>
 class QueueClass {
 	public:
     		QueueClass() {
     			pthread_mutex_init(&queueMutex, NULL);
     			pthread_cond_init(&emptyCondVar, NULL);
-    			//Stopped = false;
 		}
 
-    		void Enqueue(string data) {
+    		~QueueClass() {
+    			pthread_mutex_destroy(&queueMutex);
+    			pthread_cond_destroy(&emptyCondVar);
+		}
+
+    		void Enqueue(T data) {
     			pthread_mutex_lock(&queueMutex);
     			_queue.push(data);
     			pthread_cond_signal(&emptyCondVar);
 			pthread_mutex_unlock(&queueMutex);
 		}
 
-    		string Dequeue() {
+    		T Dequeue() {
 			pthread_mutex_lock(&queueMutex);
     			if (_queue.empty()) {
         			pthread_cond_wait(&emptyCondVar, &queueMutex);
     			}
-    			//if (Stopped) {
-        		//	pthread_mutex_unlock(&queueMutex);
-        		//	return NULL;
-    			//}
 
     			string elem = _queue.front();
     			_queue.pop();
@@ -44,7 +44,14 @@ class QueueClass {
     			return elem;
 		}
 
-		queue<string> _queue;
+		int sizeOfQueue() {
+			pthread_mutex_lock(&queueMutex);
+			int s = _queue.size();
+			pthread_mutex_unlock(&queueMutex);
+			return s;
+		}
+
+		queue<T> _queue;
 		pthread_mutex_t queueMutex;
 		pthread_cond_t emptyCondVar;
 };
