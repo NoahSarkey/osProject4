@@ -12,10 +12,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <curl/curl.h>
-	
+
+// fetch will have the given time and date when the fetch was done
+
 class Fetch {
 	public:
 		Fetch() {
+
 		}
 	 
 		struct MemoryStruct {
@@ -47,7 +50,6 @@ class Fetch {
 		  	CURL *curl_handle;
 		  	CURLcode res;
 		
-			cout << "in curl\n";
 		  	struct MemoryStruct chunk;
 		 
 		  	chunk.memory = (char *)malloc(1);  /* will be grown as needed by the realloc above */ 
