@@ -45,7 +45,7 @@ class Fetch {
 		  	return realsize;
 		}	//end of writeMemoryCallback function
 		 
-		void sites(string website)
+		void * sites(string website)
 		{
 		  	CURL *curl_handle;
 		  	CURLcode res;

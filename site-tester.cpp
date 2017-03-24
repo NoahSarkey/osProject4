@@ -27,19 +27,15 @@ int CSVCOUNT = 1;
 int timer = 1;
 vector<string> WEBSITES;
 
-struct fetchItm {
-	pthread_t id;
-	string site;
-};
-
 struct parseItm {
 	pthread_t id;
-	string site;
-	string data;
+	string site; // Website
+	string data; // Content 
 };
 
 QueueClass<parseItm> parseQueue;
-QueueClass<fetchItm> fetchQueue;
+QueueClass<string> fetchQueue; //
+QueueClass<string> resultsQueue;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -167,7 +163,7 @@ int main (int argc, char * argv[]){
 		cout << "main() : creating thread, " << i << endl;
 		td[i].id = i;
 		td[i].site = WEBSITES[j];
-		rc = pthread_create(&threads[i], NULL, 
+		rc = pthread_create(&threads[i], NULL, func ,NULL); // make function that calls sites on fetch1 and places on to the queue 
 	}
 
 	// make this into a curl function
@@ -182,6 +178,7 @@ int main (int argc, char * argv[]){
 			// get time and date curr time
 			string currtime = getTimeDate();
 		
+			// count make into function
 			while (fetch1.html.find(searchTerms[j], position) != string::npos) {
 				position = fetch1.html.find(searchTerms[j], position) + searchTerms[j].size();				
 				counter ++;
