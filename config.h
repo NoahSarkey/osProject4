@@ -48,18 +48,23 @@ class Config{
 				// checking the parameters, could make switch
 				if(param == "PERIOD_FETCH"){
 					pnd["PERIOD_FETCH"] = atoi(data.c_str());
+					PERIOD_FETCH = pnd["PERIOD_FETCH"];
 				}
 				else if(param == "NUM_FETCH"){
 					pnd["NUM_FETCH"] = atoi(data.c_str());
+					NUM_FETCH = pnd["NUM_FETCH"];
 				}
 				else if(param == "NUM_PARSE"){
 					pnd["NUM_PARSE"] = atoi(data.c_str());
+					NUM_PARSE = pnd["NUM_PARSE"];
 				}
 				else if(param == "SEARCH_FILE"){
 					ss["SEARCH_FILE"] = data;
+					SEARCH_FILE = ss["SEARCH_FILE"];
 				}
 				else if(param == "SITE_FILE"){
 					ss["SITE_FILE"] = data;
+					SITE_FILE = ss["SITE_FILE"];
 				}
 				else{ cout << "What the fuck is that?" << endl; }
 			}
