@@ -45,11 +45,11 @@ class Fetch {
 		  	return realsize;
 		}	//end of writeMemoryCallback function
 		 
-		void * sites(string website)
+		void sites(QueueClass<pair<string,string>> &bothData, vector<string>WEBSITES, mutex &mut)
 		{
 		  	CURL *curl_handle;
 		  	CURLcode res;
-		
+			string searchSite = WEBSITES.pop();
 		  	struct MemoryStruct chunk;
 		 
 		  	chunk.memory = (char *)malloc(1);  /* will be grown as needed by the realloc above */ 
@@ -61,7 +61,7 @@ class Fetch {
 		  	curl_handle = curl_easy_init();
 		 
 		  	/* specify URL to get */ 
-		  	curl_easy_setopt(curl_handle, CURLOPT_URL, website.c_str());
+		  	curl_easy_setopt(curl_handle, CURLOPT_URL, searchSite.c_str());
 		 
 		  	/* send all data to this function  */ 
 		  	curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
@@ -77,13 +77,13 @@ class Fetch {
 		 
 		  	/* check for errors */ 
 		  	if(res != CURLE_OK) {
-		    		fprintf(stderr, "curl_easy_perform() failed: %s\n",
-			    	curl_easy_strerror(res));
-		  	}
+		    		fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+		  	
+			}
 
 		 	else {
 		 		html = string(chunk.memory);
-				//cout << html << "\n";
+				bothData.push(make_pair(html, searchSite);
 		  	}
 		 
 		  	/* cleanup curl stuff */ 
@@ -93,6 +93,7 @@ class Fetch {
 		 
 		  	/* we're done with libcurl, so clean it up */ 
 		  	curl_global_cleanup();
+			conditionalVar2.notify_one();
 		}
 		
 		string html;

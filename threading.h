@@ -25,20 +25,20 @@ class QueueClass {
     			pthread_cond_destroy(&emptyCondVar);
 		}
 
-    		void Enqueue(T data) {
+    		void queue_push(T data) {
     			pthread_mutex_lock(&queueMutex);
     			_queue.push(data);
     			pthread_cond_signal(&emptyCondVar);
 			pthread_mutex_unlock(&queueMutex);
 		}
 
-    		T Dequeue() {
+    		T queue_pop() {
 			pthread_mutex_lock(&queueMutex);
     			if (_queue.empty()) {
         			pthread_cond_wait(&emptyCondVar, &queueMutex);
     			}
 
-    			string elem = _queue.front();
+    			T elem = _queue.front();
     			_queue.pop();
     			pthread_mutex_unlock(&queueMutex);
     			return elem;

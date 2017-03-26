@@ -1,9 +1,9 @@
-Date and Time, Search Phrase, Site, Count
-Thu Mar 23 20:38:00 2017, Trump, http://www.cnn.com/, 20
-Thu Mar 23 20:38:00 2017, news, http://www.cnn.com/, 57
-Thu Mar 23 20:38:00 2017, sports, http://www.cnn.com/, 15
-Thu Mar 23 20:38:00 2017, Ball, http://www.cnn.com/, 0
-Thu Mar 23 20:38:00 2017, Trump, http://www.espn.com/, 1
-Thu Mar 23 20:38:01 2017, news, http://www.espn.com/, 16
-Thu Mar 23 20:38:02 2017, sports, http://www.espn.com/, 89
-Thu Mar 23 20:38:02 2017, Ball, http://www.espn.com/, 16
+Time,Phrase,Site,Count
+Fri Mar 24 10:44:49 2017,Trump,http://www.cnn.com/,20
+Fri Mar 24 10:44:49 2017,news,http://www.cnn.com/,58
+Fri Mar 24 10:44:49 2017,sports,http://www.cnn.com/,16
+Fri Mar 24 10:44:49 2017,Ball,http://www.cnn.com/,0
+Fri Mar 24 10:44:50 2017,Trump,http://www.espn.com/,0
+Fri Mar 24 10:44:51 2017,news,http://www.espn.com/,14
+Fri Mar 24 10:44:51 2017,sports,http://www.espn.com/,163
+Fri Mar 24 10:44:52 2017,Ball,http://www.espn.com/,17
