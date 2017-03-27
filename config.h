@@ -56,7 +56,7 @@ class Config{
 						NUM_FETCH = pnd["NUM_FETCH"];
 					}
 					else{
-						cout << "NUM_FETCH must be between 1 and 8" << endl;
+						cout << "NUM_FETCH must be between 1 and 8." << endl;
 						exit(1);
 					}
 				}
@@ -66,7 +66,7 @@ class Config{
 						NUM_PARSE = pnd["NUM_PARSE"];
 					}
 					else{
-						cout << "NUM_PARSE must be between 1 and 8" << endl;
+						cout << "NUM_PARSE must be between 1 and 8." << endl;
 						exit(1);
 					}
 				}
@@ -78,13 +78,13 @@ class Config{
 					ss["SITE_FILE"] = data;
 					SITE_FILE = ss["SITE_FILE"];
 				}
-				else{ cout << "Unknown Parameter" << endl; }
+				else{ cout << "Unknown Parameter." << endl; }
 			}
 			inFile.close();
 		}
 
 		void output(){
-			// printing out elements of a map
+		/*	// printing out elements of a map
 			map<string,int>::iterator it;
 			for(it = pnd.begin(); it != pnd.end(); it++){
 				cout << it->first << " = " << it->second << endl;
@@ -94,7 +94,7 @@ class Config{
 			map<string,string>::iterator st;
 			for(st = ss.begin(); st != ss.end(); st++){
 				cout << st->first << " = " << st->second << endl;
-			}
+			}*/
 		}
 
 		// member variables

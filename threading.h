@@ -51,6 +51,18 @@ class QueueClass {
 			return s;
 		}
 
+		void restore() {
+			pthread_mutex_lock(&queueMutex);
+			_queue = _queue_backup;
+			pthread_mutex_unlock(&queueMutex);
+		}
+
+		void set_restore_point() {
+			pthread_mutex_lock(&queueMutex);
+			_queue_backup = _queue;
+			pthread_mutex_unlock(&queueMutex);
+		}
+
 		int empty() {
 			int val = 0;
 			pthread_mutex_lock(&queueMutex);
@@ -60,6 +72,7 @@ class QueueClass {
 		}
 
 		queue<T> _queue;
+		queue<T> _queue_backup;
 		pthread_mutex_t queueMutex;
 		pthread_cond_t emptyCondVar;
 };

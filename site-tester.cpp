@@ -103,8 +103,11 @@ class Fetch {
 				 
 				  	/* some servers don't like requests that are made without a user-agent field, so we provide one */ 
 				  	curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "libcurl-agent/1.0");
-				 
+
+					curl_easy_setopt(curl_handle, CURLOPT_TIMEOUT, 30L);
+				 	curl_easy_setopt(curl_handle, CURLOPT_NOSIGNAL, 1);
 				  	/* get it! */ 
+					// do we have to put some sort of timer around this to prevent unfriendly sites
 				  	res = curl_easy_perform(curl_handle);
 				 
 				  	/* check for errors */ 
@@ -146,26 +149,8 @@ string getTimeDate(){
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-/*
-void alarmFunc() {
-	for (unsigned int i = 0; i < WEBSITES.size()-1; i ++) {
-		fetchItm temp;
-		temp.site = WEBSITES[i];
-		fetchQueue.Enqueue(temp);
-	}
-	alarm(timer);
-}
-*/
-////////////////////////////////////////////////////////////////////////////////
-
-
-
-////////////////////////////////////////////////////////////////////////////////
 
 void output(vector<string> outstrings) {
-
-	cout << "IN HERE" << endl;
-
 	if(!(outstrings.empty())){
 		ofstream outputFile;
 		string result;
@@ -173,12 +158,9 @@ void output(vector<string> outstrings) {
 		convert << CSVCOUNT;
 		result = convert.str();
 		string filename = result + ".csv";
-		outputFile.open(filename.c_str());
+		cout << "Opening file " << filename << endl;
+		outputFile.open(filename.c_str(), ios::out);
 
-		/*string firstline = "";
-		if (TIMECOUNT == 0){
-			firstline = "Time,Phrase,Site,Count\n";
-		}*/
 		string firstline = "Time,Phrase,Site,Count\n";
 		// string cnt = to_string(count);
 
@@ -189,9 +171,10 @@ void output(vector<string> outstrings) {
 			outputFile << *i << endl;
 		}
 
-		unsigned int v2 = SEARCH_TERMS.size() * WEBSITES.size();
-		unsigned int v1 = CREATE_OUTPUT;
-		if (v1 == v2) outputFile.close();
+		//unsigned int v2 = SEARCH_TERMS.size() * WEBSITES.size();
+		//unsigned int v1 = CREATE_OUTPUT;
+		//if (v1 == v2) outputFile.close();
+		outputFile.close();
 	}
 }
 
@@ -199,6 +182,7 @@ void output(vector<string> outstrings) {
 
 void signalHandler(int value) {
 	curl_global_cleanup();
+	puts("\nCleaning up...\n");
 	exit(0);
 }
 
@@ -210,51 +194,42 @@ void setFlag(int value) {
 ////////////////////////////////////////////////////////////////////////////////
 
 void countApp(QueueClass<pair<string,string>> &bothData, QueueClass<string> &websitesData, mutex &mut) {
-	vector<string> mystrings;
 	while (1) {	
-		cout << "counting" << endl;
 		unique_lock<mutex> locker(mut);
-		cout << "c" << endl;
 		conditionalVar2.wait(locker);
-
-	cout << "b" << endl;
 
 		string currtime = getTimeDate();
 
-		cout << "a" << endl;
-		while (!bothData.empty()) {
+		vector<string> mystrings;
+		while (!bothData.empty()) {			
 			pair<string,string> p = bothData.queue_pop();
-			//cout << p.first << p.second << endl;
-			cout << "counting for " << p.second << endl;
-			cout << "enter for" << endl;
 
 			for (unsigned int i = 0; i < SEARCH_TERMS.size() - 1; i ++)
 			{
 				int position = 0;
 				int inc = 0;
 				unsigned int end = 0;
-				position = p.first.find("<body", 0);
-				end = p.first.find("</body>");
-				while (p.first.find(SEARCH_TERMS[i], position) < end) {
-					position = p.first.find(SEARCH_TERMS[i], position) + SEARCH_TERMS[i].size();
-					inc ++;
-					//cout << inc << "count" << endl;
-				}	//end of while loop
-				cout << "calling output" << endl;
+			
+				if (SEARCH_TERMS[i].length() > p.first.length()) {
+					inc = 0;
+				}
+				else {
+					position = p.first.find("<body", 0);
+					end = p.first.find("</body>");
+					while (p.first.find(SEARCH_TERMS[i], position) < end) {
+						position = p.first.find(SEARCH_TERMS[i], position) + SEARCH_TERMS[i].size();
+						inc ++;
+					}	//end of while loop
+				}
 
-				cout << SEARCH_TERMS[i] << " " << inc << endl;
-
-				// output(currtime, SEARCH_TERMS[i], p.second, inc); // p.second is website, inc is count, search terms is word
 				string count = to_string(inc); 
 				string s = currtime + ", " + SEARCH_TERMS[i] + ", " + p.second + ", " + count;
 				mystrings.push_back(s);
-				cout << SEARCH_TERMS.size() << " " << i << "value when outputting" << endl;
-			}
-		}
+			}	//end for loop
+		}	//end while loop
 		output(mystrings);
-		CSVCOUNT+=1;
-	}
-}
+	}	//end while loop
+}	//end of countApp function
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -262,8 +237,6 @@ int main (int argc, char * argv[]){
 
 	// declare variables
 	string configfile;
-	//QueueClass<pair<string.string>> bothData;
-	//QueueClass<string> websitesData;
 	vector<thread> fetchThread;
 	vector<thread> parseThread;
 
@@ -275,7 +248,6 @@ int main (int argc, char * argv[]){
 		// getting the config filefp
 		if(fopen(argv[1], "r")){
 			configfile = argv[1];
-			cout << "Config File: " << configfile << endl;
 		}
 		else{
 			cout << "Given config file does not exist" << endl;
@@ -318,63 +290,35 @@ int main (int argc, char * argv[]){
 			getline(webFile, line);
 			if (!line.empty()) {
 				WEBSITES.push_back(line);
-				cout << "num sites " << WEBSITES.size() << line << endl;
+				//cout << "num sites " << WEBSITES.size() << line << endl;
 				websitesData.queue_push(line);	
 			}
 		}	//end while loop
 	}	//end if statement
-
-	///cout << websitesData << endl;
-
-	cout << "1" << endl;
-
-//////////////////////// begin forming the threads /////////////////////////////
 		
-		signal(SIGINT, signalHandler);
-		signal(SIGHUP, signalHandler);
-	//	alarm(30);
-		mutex mut;
+	websitesData.set_restore_point();
 
-		cout << "2" << endl;
+	signal(SIGINT, signalHandler);
+	signal(SIGHUP, signalHandler);
+	mutex mut;
 
-		for (int i = 0; i < mainconfig.NUM_FETCH; i ++) {
-			fetchThread.emplace_back(Fetch::sites, ref(bothData), ref(websitesData), ref(mut));
-			cout << "3" << endl;	
-		}
-
-		cout << "4" << endl;
-
-		for (int j = 0; j < mainconfig.NUM_PARSE; j ++) {
-			parseThread.emplace_back(countApp, ref(bothData), ref(websitesData), ref(mut));
-			cout << "5" << endl;	
-		}
-
-		cout << "6" << endl;
-	/*
-		for (int k = 0; k < mainconfig.NUM_FETCH; k ++) {
-			cout << "6.5" << endl;
-			fetchThread[k].join();
-			cout << "7" << endl;	
-		}	
-
-		cout << "8" << endl;
-
-		for (int l = 0; l < mainconfig.NUM_PARSE; l ++) {
-			parseThread[l].join();
-			cout << "9" << endl;
-		}
-	*/
-		cout << "10" << endl;
-	while (true) {
-		//signal(SIGALRM, setFlag);
-		conditionalVar1.notify_all();
-
-		cout << "final while" << endl;		
-
-		this_thread::sleep_for (std::chrono::seconds(5));
+	for (int i = 0; i < mainconfig.NUM_FETCH; i ++) {
+		fetchThread.emplace_back(Fetch::sites, ref(bothData), ref(websitesData), ref(mut));	
 	}
-	// close the file
-	//outputFile.close();
+	for (int j = 0; j < mainconfig.NUM_PARSE; j ++) {
+		parseThread.emplace_back(countApp, ref(bothData), ref(websitesData), ref(mut));	
+	}
+
+	while (true) {
+		conditionalVar1.notify_all();
+		this_thread::sleep_for (std::chrono::seconds(mainconfig.PERIOD_FETCH));
+		CSVCOUNT ++;
+		cout << mainconfig.PERIOD_FETCH << " " << CSVCOUNT << endl;
+
+		websitesData.restore();
+
+	}
+
 	curl_global_cleanup();
 	return 0;
 }	//end of main function
