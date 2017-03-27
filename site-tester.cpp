@@ -82,7 +82,7 @@ class Fetch {
 			  	CURLcode res;
 				while (!websitesData.empty()) {
 					string searchSite = websitesData.queue_pop();
-					cout << "INSIDE OF CURL THE SITE IS " << searchSite << endl;
+					//cout << "INSIDE OF CURL THE SITE IS " << searchSite << endl;
 				  	struct MemoryStruct chunk;
 				 
 				  	chunk.memory = (char *)malloc(1);  /* will be grown as needed by the realloc above */ 
@@ -107,6 +107,7 @@ class Fetch {
 
 					curl_easy_setopt(curl_handle, CURLOPT_TIMEOUT, 30L);
 				 	curl_easy_setopt(curl_handle, CURLOPT_NOSIGNAL, 1);
+
 				  	/* get it! */ 
 					// do we have to put some sort of timer around this to prevent unfriendly sites
 				  	res = curl_easy_perform(curl_handle);
@@ -159,22 +160,16 @@ void output(vector<string> outstrings) {
 		convert << CSVCOUNT;
 		result = convert.str();
 		string filename = result + ".csv";
-		cout << "Opening file " << filename << endl;
+		//cout << "Opening file " << filename << endl;
 		outputFile.open(filename.c_str(), ios::out);
 
 		string firstline = "Time,Phrase,Site,Count\n";
-		// string cnt = to_string(count);
 
-		// string s = firstline + dt + "," + phrase + "," + site + "," + cnt + "\n"; 
-		// cout << s << endl;
 		outputFile << firstline;
 		for(vector<string>::const_iterator i = outstrings.begin(); i != outstrings.end(); i++){
 			outputFile << *i << endl;
 		}
 
-		//unsigned int v2 = SEARCH_TERMS.size() * WEBSITES.size();
-		//unsigned int v1 = CREATE_OUTPUT;
-		//if (v1 == v2) outputFile.close();
 		outputFile.close();
 	}
 }
@@ -209,15 +204,16 @@ void countApp(QueueClass<pair<string,string>> &bothData, QueueClass<string> &web
 			{
 				int position = 0;
 				int inc = 0;
-				unsigned int end = 0;
+				//unsigned int end = 0;
 			
 				if (SEARCH_TERMS[i].length() > p.first.length()) {
 					inc = 0;
 				}
 				else {
-					position = p.first.find("<body", 0);
-					end = p.first.find("</body>");
-					while (p.first.find(SEARCH_TERMS[i], position) < end) {
+					//position = p.first.find("<body", 0);
+					//end = p.first.find("</body>");
+					//while (p.first.find(SEARCH_TERMS[i], position) < end) {
+					while (p.first.find(SEARCH_TERMS[i], position) != string::npos) {
 						position = p.first.find(SEARCH_TERMS[i], position) + SEARCH_TERMS[i].size();
 						inc ++;
 					}	//end of while loop
@@ -291,7 +287,6 @@ int main (int argc, char * argv[]){
 			getline(webFile, line);
 			if (!line.empty()) {
 				WEBSITES.push_back(line);
-				//cout << "num sites " << WEBSITES.size() << line << endl;
 				websitesData.queue_push(line);	
 			}
 		}	//end while loop
@@ -314,10 +309,7 @@ int main (int argc, char * argv[]){
 		conditionalVar1.notify_all();
 		this_thread::sleep_for (std::chrono::seconds(mainconfig.PERIOD_FETCH));
 		CSVCOUNT ++;
-		cout << mainconfig.PERIOD_FETCH << " " << CSVCOUNT << endl;
-
 		websitesData.restore();
-
 	}
 
 	curl_global_cleanup();

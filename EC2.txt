@@ -9,3 +9,7 @@ corresponding </body> and searched only within this area for the different words
 that were specified in Search.txt. It followed nearly the same format as the
 original implementation, but changed the start and end positions of the area being
 searched.
+
+We have commented out the code performing this to maintain original functionality. 
+To allow the functionality to run, simply uncomment the following lines: 207, 213-215. 
+Also comment out line 216. This will run search only between the body tags.
