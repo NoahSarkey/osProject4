@@ -213,7 +213,6 @@ void setFlag(int value) {
 void countApp(QueueClass<pair<string,string>> &bothData, QueueClass<string> &websitesData, mutex &mut) {
 
 	while (1) {	
-
 		cout << "counting" << endl;
 		unique_lock<mutex> locker(mut);
 		cout << "c" << endl;
@@ -234,7 +233,10 @@ void countApp(QueueClass<pair<string,string>> &bothData, QueueClass<string> &web
 			{
 				int position = 0;
 				int inc = 0;
-				while (p.first.find(SEARCH_TERMS[i], position) != string::npos) {
+				unsigned int end = 0;
+				position = p.first.find("<body", 0);
+				end = p.first.find("</body>");
+				while (p.first.find(SEARCH_TERMS[i], position) < end) {
 					position = p.first.find(SEARCH_TERMS[i], position) + SEARCH_TERMS[i].size();
 					inc ++;
 					//cout << inc << "count" << endl;
@@ -310,9 +312,11 @@ int main (int argc, char * argv[]){
 		while (!webFile.eof()) {
 			string line = "";	
 			getline(webFile, line);
-			WEBSITES.push_back(line);
-			cout << "num sites " << WEBSITES.size() << line << endl;
-			websitesData.queue_push(line);	
+			if (!line.empty()) {
+				WEBSITES.push_back(line);
+				cout << "num sites " << WEBSITES.size() << line << endl;
+				websitesData.queue_push(line);	
+			}
 		}	//end while loop
 	}	//end if statement
 

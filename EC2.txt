@@ -1,0 +1,11 @@
+Sam Mustipher, Noah Sarkey
+CSE 30341-02 Project4
+
+We elected to go for the 5pt extra credit on Project 4, making the code HTML
+aware. To do this, we made sure that when searching the code only looked within
+the <body> tags; this allows us to disregard HTML code that might otherwise change
+the results of our searches. To do this, we found the first <body> and the
+corresponding </body> and searched only within this area for the different words
+that were specified in Search.txt. It followed nearly the same format as the
+original implementation, but changed the start and end positions of the area being
+searched.
