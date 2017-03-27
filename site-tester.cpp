@@ -34,6 +34,7 @@
 #include "threading.h"
 using namespace std;
 
+int CREATE_OUTPUT = 0;
 condition_variable conditionalVar1, conditionalVar2;
 int CSVCOUNT = 1;
 int timer = 1;
