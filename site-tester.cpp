@@ -34,9 +34,7 @@
 #include "threading.h"
 using namespace std;
 
-int CREATE_OUTPUT = 0;
 condition_variable conditionalVar1, conditionalVar2;
-int TIMECOUNT = 0;
 int CSVCOUNT = 1;
 int timer = 1;
 vector<string> WEBSITES;
@@ -164,12 +162,11 @@ void alarmFunc() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void output(string dt, string phrase, string site, int count) {
+void output(vector<string> outstrings) {
 
 	cout << "IN HERE" << endl;
 
-
-	//if (CREATE_OUTPUT == 0) {
+	if(!(outstrings.empty())){
 		ofstream outputFile;
 		string result;
 		ostringstream convert;
@@ -177,23 +174,25 @@ void output(string dt, string phrase, string site, int count) {
 		result = convert.str();
 		string filename = result + ".csv";
 		outputFile.open(filename.c_str());
-	//}
-	CREATE_OUTPUT ++;
 
-	string firstline = "";
-	if (TIMECOUNT == 0){
-		firstline = "Time,Phrase,Site,Count\n";
+		/*string firstline = "";
+		if (TIMECOUNT == 0){
+			firstline = "Time,Phrase,Site,Count\n";
+		}*/
+		string firstline = "Time,Phrase,Site,Count\n";
+		// string cnt = to_string(count);
+
+		// string s = firstline + dt + "," + phrase + "," + site + "," + cnt + "\n"; 
+		// cout << s << endl;
+		outputFile << firstline;
+		for(vector<string>::const_iterator i = outstrings.begin(); i != outstrings.end(); i++){
+			outputFile << *i << endl;
+		}
+
+		unsigned int v2 = SEARCH_TERMS.size() * WEBSITES.size();
+		unsigned int v1 = CREATE_OUTPUT;
+		if (v1 == v2) outputFile.close();
 	}
-
-	string cnt = to_string(count);
-
-	TIMECOUNT+=1;
-	string s = firstline + dt + "," + phrase + "," + site + "," + cnt + "\n"; 
-	cout << s << endl;
-	outputFile << s;
-	unsigned int v2 = SEARCH_TERMS.size() * WEBSITES.size();
-	unsigned int v1 = CREATE_OUTPUT;
-	if (v1 == v2) outputFile.close();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -211,7 +210,7 @@ void setFlag(int value) {
 ////////////////////////////////////////////////////////////////////////////////
 
 void countApp(QueueClass<pair<string,string>> &bothData, QueueClass<string> &websitesData, mutex &mut) {
-
+	vector<string> mystrings;
 	while (1) {	
 		cout << "counting" << endl;
 		unique_lock<mutex> locker(mut);
@@ -245,10 +244,15 @@ void countApp(QueueClass<pair<string,string>> &bothData, QueueClass<string> &web
 
 				cout << SEARCH_TERMS[i] << " " << inc << endl;
 
-				output(currtime, SEARCH_TERMS[i], p.second, inc);
-				cout << SEARCH_TERMS.size() << " " << i << "value when outputing" << endl;
+				// output(currtime, SEARCH_TERMS[i], p.second, inc); // p.second is website, inc is count, search terms is word
+				string count = to_string(inc); 
+				string s = currtime + ", " + SEARCH_TERMS[i] + ", " + p.second + ", " + count;
+				mystrings.push_back(s);
+				cout << SEARCH_TERMS.size() << " " << i << "value when outputting" << endl;
 			}
 		}
+		output(mystrings);
+		CSVCOUNT+=1;
 	}
 }
 

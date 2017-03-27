@@ -50,13 +50,25 @@ class Config{
 					pnd["PERIOD_FETCH"] = atoi(data.c_str());
 					PERIOD_FETCH = pnd["PERIOD_FETCH"];
 				}
-				else if(param == "NUM_FETCH"){
+				else if(param == "NUM_FETCH"){ // must be 1-8
 					pnd["NUM_FETCH"] = atoi(data.c_str());
-					NUM_FETCH = pnd["NUM_FETCH"];
+					if (pnd["NUM_FETCH"] >= 1 && pnd["NUM_FETCH"] <= 8){
+						NUM_FETCH = pnd["NUM_FETCH"];
+					}
+					else{
+						cout << "NUM_FETCH must be between 1 and 8" << endl;
+						exit(1);
+					}
 				}
-				else if(param == "NUM_PARSE"){
+				else if(param == "NUM_PARSE"){ // must be 1-8
 					pnd["NUM_PARSE"] = atoi(data.c_str());
-					NUM_PARSE = pnd["NUM_PARSE"];
+					if (pnd["NUM_PARSE"] >= 1 && pnd["NUM_PARSE"] <= 8){
+						NUM_PARSE = pnd["NUM_PARSE"];
+					}
+					else{
+						cout << "NUM_PARSE must be between 1 and 8" << endl;
+						exit(1);
+					}
 				}
 				else if(param == "SEARCH_FILE"){
 					ss["SEARCH_FILE"] = data;
@@ -66,7 +78,7 @@ class Config{
 					ss["SITE_FILE"] = data;
 					SITE_FILE = ss["SITE_FILE"];
 				}
-				else{ cout << "What the fuck is that?" << endl; }
+				else{ cout << "Unknown Parameter" << endl; }
 			}
 			inFile.close();
 		}
