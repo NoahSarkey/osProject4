@@ -7,6 +7,7 @@
 
 
 ////////////////////////////////////////////////////////////////////////////////
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
@@ -21,6 +22,7 @@
 #include <fstream>
 #include <ctime>
 #include <utility>
+#include <chrono>
 #include <thread>
 #include <condition_variable>
 #include <mutex>
@@ -29,7 +31,6 @@
 #include <curl/curl.h>
 #include "config.h"
 #include "search.h"
-//#include "fetch.h"
 #include "threading.h"
 using namespace std;
 
@@ -42,12 +43,6 @@ vector<string> WEBSITES;
 vector<string> SEARCH_TERMS;
 QueueClass<pair<string,string>> bothData;
 QueueClass<string> websitesData;
-
-//struct parseItm {
-//	pthread_t id;
-//	string site; // Website
-//	string data; // Content 
-//};
 
 ////////////////////////////// FETCH CLASS /////////////////////////////////////
 
@@ -79,61 +74,68 @@ class Fetch {
 		  	return realsize;
 		}	//end of writeMemoryCallback function
 		 
-		void sites(QueueClass<pair<string,string>> &bothData, QueueClass<string> &websitesData, mutex &mut)
+		static void sites(QueueClass<pair<string,string>> &bothData, QueueClass<string> &websitesData, mutex &mut)
 		{
-			unique_lock<mutex> locker2(mut);
-			conditionalVar1.wait(locker2);
-		  	CURL *curl_handle;
-		  	CURLcode res;
-			string searchSite = websitesData.queue_pop();
-		  	struct MemoryStruct chunk;
-		 
-		  	chunk.memory = (char *)malloc(1);  /* will be grown as needed by the realloc above */ 
-		  	chunk.size = 0;    /* no data at this point */ 
-		 
-		  	curl_global_init(CURL_GLOBAL_ALL);
-		 
-		  	/* init the curl session */ 
-		  	curl_handle = curl_easy_init();
-		 
-		  	/* specify URL to get */ 
-		  	curl_easy_setopt(curl_handle, CURLOPT_URL, searchSite.c_str());
-		 
-		  	/* send all data to this function  */ 
-		  	curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
-		 
-		  	/* we pass our 'chunk' struct to the callback function */ 
-		  	curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void *)&chunk);
-		 
-		  	/* some servers don't like requests that are made without a user-agent field, so we provide one */ 
-		  	curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "libcurl-agent/1.0");
-		 
-		  	/* get it! */ 
-		  	res = curl_easy_perform(curl_handle);
-		 
-		  	/* check for errors */ 
-		  	if(res != CURLE_OK) {
-		    		fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
-		  	
-			}
+			while (1) {
+				unique_lock<mutex> locker2(mut);
+				conditionalVar1.wait(locker2);
+			  	CURL *curl_handle;
+			  	CURLcode res;
+				while (!websitesData.empty()) {
+					string searchSite = websitesData.queue_pop();
+					cout << "INSIDE OF CURL THE SITE IS " << searchSite << endl;
+				  	struct MemoryStruct chunk;
+				 
+				  	chunk.memory = (char *)malloc(1);  /* will be grown as needed by the realloc above */ 
+				  	chunk.size = 0;    /* no data at this point */ 
+				 
+				  	curl_global_init(CURL_GLOBAL_ALL);
+				 
+				  	/* init the curl session */ 
+				  	curl_handle = curl_easy_init();
+				 
+				  	/* specify URL to get */ 
+				  	curl_easy_setopt(curl_handle, CURLOPT_URL, searchSite.c_str());
+				 
+				  	/* send all data to this function  */ 
+				  	curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
+				 
+				  	/* we pass our 'chunk' struct to the callback function */ 
+				  	curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void *)&chunk);
+				 
+				  	/* some servers don't like requests that are made without a user-agent field, so we provide one */ 
+				  	curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "libcurl-agent/1.0");
+				 
+				  	/* get it! */ 
+				  	res = curl_easy_perform(curl_handle);
+				 
+				  	/* check for errors */ 
+				  	if(res != CURLE_OK) {
+				    		fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+				  	
+					}
 
-		 	else {
-		 		html = string(chunk.memory);
-				bothData.queue_push(make_pair(html, searchSite));
-		  	}
-		 
-		  	/* cleanup curl stuff */ 
-		  	curl_easy_cleanup(curl_handle);
-		 
-		  	free(chunk.memory);
-		 
-		  	/* we're done with libcurl, so clean it up */ 
-		  	curl_global_cleanup();
-			conditionalVar2.notify_one();
+				 	else {
+						string h = string(chunk.memory);
+				 		//html = string(chunk.memory);
+						bothData.queue_push(make_pair(h, searchSite));
+						//bothData.queue_push(make_pair(html, searchSite));
+				  	}
+				 
+				  	/* cleanup curl stuff */ 
+				  	curl_easy_cleanup(curl_handle);
+				 
+				  	free(chunk.memory);
+				 
+				  	/* we're done with libcurl, so clean it up */ 
+				  	curl_global_cleanup();
+					conditionalVar2.notify_one();
+				}	//end while
+			}	//end while
 		}
 		
 		string html;
-		mutex mu;
+		//mutex mu;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -163,6 +165,10 @@ void alarmFunc() {
 ////////////////////////////////////////////////////////////////////////////////
 
 void output(string dt, string phrase, string site, int count) {
+
+	cout << "IN HERE" << endl;
+
+
 	//if (CREATE_OUTPUT == 0) {
 		ofstream outputFile;
 		string result;
@@ -178,15 +184,12 @@ void output(string dt, string phrase, string site, int count) {
 	if (TIMECOUNT == 0){
 		firstline = "Time,Phrase,Site,Count\n";
 	}
-	
-	// convert int to string
-	//string result;
-	//ostringstream convert;
-	//convert << count;
-	//result = convert.str();
+
+	string cnt = to_string(count);
 
 	TIMECOUNT+=1;
-	string s = firstline + dt + "," + phrase + "," + site + "," + result + "\n"; 
+	string s = firstline + dt + "," + phrase + "," + site + "," + cnt + "\n"; 
+	cout << s << endl;
 	outputFile << s;
 	unsigned int v2 = SEARCH_TERMS.size() * WEBSITES.size();
 	unsigned int v1 = CREATE_OUTPUT;
@@ -201,29 +204,49 @@ void signalHandler(int value) {
 }
 
 void setFlag(int value) {
-	conditionalVar1.notify_one();
+	conditionalVar1.notify_all();
 	alarm(30);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void countApp(QueueClass<pair<string,string>> &bothData, QueueClass<string> &websitesData, mutex &mut) {
-	unique_lock<mutex> locker(mut);
-	conditionalVar2.wait(locker);
-	string currtime = getTimeDate();
-	pair<string,string> p = bothData.queue_pop();
-	//int inc = 0;
-	
-	for (unsigned int i = 0; i < SEARCH_TERMS.size(); i ++)
-	{
-		int position = 0;
-		int inc = 0;
-		while (p.first.find(SEARCH_TERMS[i], position) != string::npos) {
-			position = p.first.find(SEARCH_TERMS[i], position) + SEARCH_TERMS[i].size();
-			inc ++;
-		}	//end of while loop
-		//outfile << output(currtime, SEARCH_TERMS[i], p.second, inc);
-		output(currtime, SEARCH_TERMS[i], p.second, inc);
+
+	while (1) {	
+
+		cout << "counting" << endl;
+		unique_lock<mutex> locker(mut);
+		cout << "c" << endl;
+		conditionalVar2.wait(locker);
+
+	cout << "b" << endl;
+
+		string currtime = getTimeDate();
+
+		cout << "a" << endl;
+		while (!bothData.empty()) {
+			pair<string,string> p = bothData.queue_pop();
+			//cout << p.first << p.second << endl;
+			cout << "counting for " << p.second << endl;
+			cout << "enter for" << endl;
+
+			for (unsigned int i = 0; i < SEARCH_TERMS.size() - 1; i ++)
+			{
+				int position = 0;
+				int inc = 0;
+				while (p.first.find(SEARCH_TERMS[i], position) != string::npos) {
+					position = p.first.find(SEARCH_TERMS[i], position) + SEARCH_TERMS[i].size();
+					inc ++;
+					//cout << inc << "count" << endl;
+				}	//end of while loop
+				cout << "calling output" << endl;
+
+				cout << SEARCH_TERMS[i] << " " << inc << endl;
+
+				output(currtime, SEARCH_TERMS[i], p.second, inc);
+				cout << SEARCH_TERMS.size() << " " << i << "value when outputing" << endl;
+			}
+		}
 	}
 }
 
@@ -271,7 +294,7 @@ int main (int argc, char * argv[]){
 	SEARCH_TERMS = mainsearch.phrase;
 
 	// Implementing Fetch
-	Fetch fetch1;	
+	Fetch fetchInstant;	
 	
 	// read the websites into a vector
 	ifstream webFile;
@@ -287,33 +310,61 @@ int main (int argc, char * argv[]){
 		while (!webFile.eof()) {
 			string line = "";	
 			getline(webFile, line);
-			WEBSITES.push_back(line);		
+			WEBSITES.push_back(line);
+			cout << "num sites " << WEBSITES.size() << line << endl;
+			websitesData.queue_push(line);	
 		}	//end while loop
 	}	//end if statement
 
+	///cout << websitesData << endl;
+
+	cout << "1" << endl;
+
 //////////////////////// begin forming the threads /////////////////////////////
-	signal(SIGALRM, setFlag);
-	signal(SIGINT, signalHandler);
-	signal(SIGHUP, signalHandler);
-	alarm(30);
-	mutex mut;
+		
+		signal(SIGINT, signalHandler);
+		signal(SIGHUP, signalHandler);
+	//	alarm(30);
+		mutex mut;
 
-	for (int i = 0; i < mainconfig.NUM_FETCH; i ++) {
-		fetchThread.emplace_back(fetch1.sites, ref(bothData), ref(websitesData), ref(mut));
+		cout << "2" << endl;
+
+		for (int i = 0; i < mainconfig.NUM_FETCH; i ++) {
+			fetchThread.emplace_back(Fetch::sites, ref(bothData), ref(websitesData), ref(mut));
+			cout << "3" << endl;	
+		}
+
+		cout << "4" << endl;
+
+		for (int j = 0; j < mainconfig.NUM_PARSE; j ++) {
+			parseThread.emplace_back(countApp, ref(bothData), ref(websitesData), ref(mut));
+			cout << "5" << endl;	
+		}
+
+		cout << "6" << endl;
+	/*
+		for (int k = 0; k < mainconfig.NUM_FETCH; k ++) {
+			cout << "6.5" << endl;
+			fetchThread[k].join();
+			cout << "7" << endl;	
+		}	
+
+		cout << "8" << endl;
+
+		for (int l = 0; l < mainconfig.NUM_PARSE; l ++) {
+			parseThread[l].join();
+			cout << "9" << endl;
+		}
+	*/
+		cout << "10" << endl;
+	while (true) {
+		//signal(SIGALRM, setFlag);
+		conditionalVar1.notify_all();
+
+		cout << "final while" << endl;		
+
+		this_thread::sleep_for (std::chrono::seconds(5));
 	}
-
-	for (int j = 0; j < mainconfig.NUM_PARSE; j ++) {
-		parseThread.emplace_back(countApp, ref(bothData), ref(websitesData), ref(mut));
-	}
-
-	for (int k = 0; k < mainconfig.NUM_FETCH; k ++) {
-		fetchThread[k].join();
-	}	
-
-	for (int l = 0; l < mainconfig.NUM_PARSE; l ++) {
-		parseThread[l].join();
-	}
-
 	// close the file
 	//outputFile.close();
 	curl_global_cleanup();

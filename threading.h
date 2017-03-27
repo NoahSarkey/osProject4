@@ -51,6 +51,14 @@ class QueueClass {
 			return s;
 		}
 
+		int empty() {
+			int val = 0;
+			pthread_mutex_lock(&queueMutex);
+			val = _queue.empty();
+			pthread_mutex_unlock(&queueMutex);
+			return val;
+		}
+
 		queue<T> _queue;
 		pthread_mutex_t queueMutex;
 		pthread_cond_t emptyCondVar;

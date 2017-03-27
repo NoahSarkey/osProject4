@@ -1,6 +1,13 @@
+CPP=/afs/nd.edu/user14/csesoft/new/bin/g++
+CPPFLAGS= -Wall -std=c++11
+LD=/afs/nd.edu/user14/csesoft/new/bin/g++
+LDFLAGS= -lcurl -static-libstdc++
+
 site-tester: site-tester.o
-	g++ -std=c++0x -g -Wall -lcurl site-tester.o -o site-tester
-site-tester.o: site-tester.cpp config.h
-	g++ -std=c++0x -g -Wall -c site-tester.cpp -o site-tester.o
+	$(LD) $(LDFLAGS) site-tester.o -o site-tester
+
+%.o: %.cpp
+	$(CPP) $(CPPFLAGS) $^ -c -o $@
+
 clean:
-	rm -f *.o site-tester
+	rm site-tester *.o
